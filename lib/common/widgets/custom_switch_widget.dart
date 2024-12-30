@@ -1,6 +1,5 @@
 import 'package:ecartify/util/color_resources.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class CustomSwitchWidget extends StatelessWidget {
   final bool value;
@@ -8,20 +7,20 @@ class CustomSwitchWidget extends StatelessWidget {
   final Function(bool value) onChanged;
 
   const CustomSwitchWidget({
-    Key? key, required this.value,
+    Key? key,
+    required this.value,
     this.activeColor,
     required this.onChanged,
   }) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
     return Transform.scale(
       scale: 0.8,
       child: CupertinoSwitch(
-          value: value,
-          activeColor: activeColor ?? ColorResources.primaryColor,
-          onChanged: (value) => onChanged(value),
+        value: value,
+        activeColor: activeColor ?? ColorResources.primaryColor,
+        onChanged: (value) => onChanged(value),
       ),
     );
   }

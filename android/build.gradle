@@ -1,26 +1,18 @@
 allprojects {
-   // ext.kotlin_version = '1.7.0'
     repositories {
         google()
-        jcenter()
-    }
-
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << '-Xlint:-options'
+        mavenCentral()
     }
 }
 
-subprojects { afterEvaluate { android { compileSdkVersion 34 } } }
-
-rootProject.buildDir = '../build'
+rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
-

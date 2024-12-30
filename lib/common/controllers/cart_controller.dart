@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+// import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
 import 'package:ecartify/features/order/controllers/order_controller.dart';
 import 'package:ecartify/features/account_management/controllers/transaction_controller.dart';
@@ -16,11 +16,9 @@ import 'package:ecartify/helper/price_converter_helper.dart';
 import 'package:ecartify/helper/show_custom_snackbar_helper.dart';
 import 'package:ecartify/features/order/screens/invoice_screen.dart';
 
-
-class CartController extends GetxController implements GetxService{
+class CartController extends GetxController implements GetxService {
   final CartRepo cartRepo;
   CartController({required this.cartRepo});
-
 
   List<CartModel> _cartList = [];
   List<CartModel> get cartList => _cartList;
@@ -35,44 +33,42 @@ class CartController extends GetxController implements GetxService{
   List<TemporaryCartListModel> _customerCartList = [];
   List<TemporaryCartListModel> get customerCartList => _customerCartList;
 
-
-  final TextEditingController _collectedCashController = TextEditingController();
+  final TextEditingController _collectedCashController =
+      TextEditingController();
   TextEditingController get collectedCashController => _collectedCashController;
 
-  final TextEditingController _customerWalletController = TextEditingController();
-  TextEditingController get customerWalletController => _customerWalletController;
-
-
-
+  final TextEditingController _customerWalletController =
+      TextEditingController();
+  TextEditingController get customerWalletController =>
+      _customerWalletController;
 
   final TextEditingController _couponController = TextEditingController();
   TextEditingController get couponController => _couponController;
 
-  final TextEditingController _extraDiscountController = TextEditingController();
+  final TextEditingController _extraDiscountController =
+      TextEditingController();
   TextEditingController get extraDiscountController => _extraDiscountController;
 
-  double _returnToCustomerAmount = 0 ;
+  double _returnToCustomerAmount = 0;
   double get returnToCustomerAmount => _returnToCustomerAmount;
 
   double _couponCodeAmount = 0;
-  double get couponCodeAmount =>_couponCodeAmount;
+  double get couponCodeAmount => _couponCodeAmount;
 
   double _extraDiscountAmount = 0;
-  double get extraDiscountAmount =>_extraDiscountAmount;
+  double get extraDiscountAmount => _extraDiscountAmount;
 
   int _discountTypeIndex = 0;
   int get discountTypeIndex => _discountTypeIndex;
 
-
   String? _selectedDiscountType = '';
-  String? get selectedDiscountType =>_selectedDiscountType;
+  String? get selectedDiscountType => _selectedDiscountType;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-
-  List <CategoriesProduct> _scanProduct =[];
-  List <CategoriesProduct> get scanProduct=>_scanProduct;
+  List<CategoriesProduct> _scanProduct = [];
+  List<CategoriesProduct> get scanProduct => _scanProduct;
 
   final List<bool> _isSelectedList = [];
   List<bool> get isSelectedList => _isSelectedList;
@@ -84,13 +80,13 @@ class CartController extends GetxController implements GetxService{
   List<int?> get customerIds => _customerIds;
 
   List<CartModel>? _existInCartList;
-  List<CartModel>? get existInCartList =>_existInCartList;
+  List<CartModel>? get existInCartList => _existInCartList;
 
   Coupons? _coupons;
-  Coupons? get coupons =>_coupons;
+  Coupons? get coupons => _coupons;
 
   List<Customers>? _searchedCustomerList;
-  List<Customers>? get searchedCustomerList =>_searchedCustomerList;
+  List<Customers>? get searchedCustomerList => _searchedCustomerList;
 
   bool _isGetting = false;
   bool _isFirst = true;
@@ -99,8 +95,6 @@ class CartController extends GetxController implements GetxService{
 
   int? _customerListLength = 0;
   int? get customerListLength => _customerListLength;
-
-
 
   String? _customerSelectedName = '';
   String? get customerSelectedName => _customerSelectedName;
@@ -111,126 +105,133 @@ class CartController extends GetxController implements GetxService{
   int? _customerId = 0;
   int? get customerId => _customerId;
 
-  final TextEditingController _searchCustomerController = TextEditingController();
-  TextEditingController get searchCustomerController => _searchCustomerController;
+  final TextEditingController _searchCustomerController =
+      TextEditingController();
+  TextEditingController get searchCustomerController =>
+      _searchCustomerController;
   double? _customerBalance = 0.0;
-  double? get customerBalance=> _customerBalance;
+  double? get customerBalance => _customerBalance;
   int cartIndex = 0;
 
-
-  void setSelectedDiscountType(String? type){
+  void setSelectedDiscountType(String? type) {
     _selectedDiscountType = type;
     update();
   }
 
   void setDiscountTypeIndex(int index, bool notify) {
     _discountTypeIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
-  void setSearchCustomerList(List<Customers>? list){
+  void setSearchCustomerList(List<Customers>? list) {
     _searchedCustomerList = list;
     update();
   }
 
-
-
-  void getReturnAmount( double totalCostAmount){
+  void getReturnAmount(double totalCostAmount) {
     setReturnAmountToZero();
 
-    if(_customerId != 0  && Get.find<TransactionController>().selectedFromAccountId == 0){
+    if (_customerId != 0 &&
+        Get.find<TransactionController>().selectedFromAccountId == 0) {
       _customerWalletController.text = _customerBalance.toString();
-      _returnToCustomerAmount = double.parse(_customerWalletController.text) - totalCostAmount;
+      _returnToCustomerAmount =
+          double.parse(_customerWalletController.text) - totalCostAmount;
+    } else if (_collectedCashController.text.isNotEmpty) {
+      _returnToCustomerAmount =
+          double.parse(_collectedCashController.text) - totalCostAmount;
     }
-    else if(_collectedCashController.text.isNotEmpty){
-     _returnToCustomerAmount = double.parse(_collectedCashController.text) - totalCostAmount;
-    }
-
 
     update();
   }
 
-  void applyCouponCodeAndExtraDiscount(double totalAmount){
-    double extraDiscount = double.parse(_extraDiscountController.text.trim()) ;
-    double discountAmount = PriceConverterHelper.discountCalculation(Get.context!,
+  void applyCouponCodeAndExtraDiscount(double totalAmount) {
+    double extraDiscount = double.parse(_extraDiscountController.text.trim());
+    double discountAmount = PriceConverterHelper.discountCalculation(
+      Get.context!,
       _amount,
       extraDiscount,
       _selectedDiscountType,
     );
-    if(discountAmount > totalAmount){
-      showCustomSnackBarHelper('${'discount_cant_greater_than'.tr} ${PriceConverterHelper.convertPrice(Get.context!, totalAmount)}', isToaster: true);
-    }else{
+    if (discountAmount > totalAmount) {
+      showCustomSnackBarHelper(
+          '${'discount_cant_greater_than'.tr} ${PriceConverterHelper.convertPrice(Get.context!, totalAmount)}',
+          isToaster: true);
+    } else {
       _extraDiscountAmount = extraDiscount;
       _customerCartList[_customerIndex].extraDiscount = extraDiscount;
     }
 
     update();
-
   }
 
   void setReturnAmountToZero({bool isUpdate = true}) {
     _returnToCustomerAmount = 0;
-    if(isUpdate){
+    if (isUpdate) {
       update();
     }
   }
 
-
-
   void addToCart(CartModel cartModel) {
     _amount = 0;
-    if(_customerCartList.isEmpty){
+    if (_customerCartList.isEmpty) {
       TemporaryCartListModel customerCart = TemporaryCartListModel(
-        cart: [], userIndex: 0, userId: 0, customerName: 'wc-0',
+        cart: [],
+        userIndex: 0,
+        userId: 0,
+        customerName: 'wc-0',
       );
 
-     addToCartListForUser(customerCart, clear: false);
+      addToCartListForUser(customerCart, clear: false);
     }
 
-    if ((_customerCartList[_customerIndex].cart?.any((e) => e.product?.id == cartModel.product?.id) ?? false)) {
+    if ((_customerCartList[_customerIndex]
+            .cart
+            ?.any((e) => e.product?.id == cartModel.product?.id) ??
+        false)) {
       isExistInCart(cartModel);
-
-    }else{
+    } else {
       _customerCartList[_customerIndex].cart?.add(cartModel);
 
-      for(int i = 0; i< (_customerCartList[_customerIndex].cart?.length ?? 0); i++){
-        _amount = _amount + (_customerCartList[_customerIndex].cart![i].price! *
-            _customerCartList[_customerIndex].cart![i].quantity!);
+      for (int i = 0;
+          i < (_customerCartList[_customerIndex].cart?.length ?? 0);
+          i++) {
+        _amount = _amount +
+            (_customerCartList[_customerIndex].cart![i].price! *
+                _customerCartList[_customerIndex].cart![i].quantity!);
       }
 
-      showCustomSnackBarHelper('added_cart_successfully'.tr, isToaster: true, isError: false);
-
+      showCustomSnackBarHelper('added_cart_successfully'.tr,
+          isToaster: true, isError: false);
     }
 
     update();
   }
 
-
-  Future<void> addToCartListForUser(TemporaryCartListModel cartList, {bool clear = false,  double payable = 0}) async {
-    if(_customerCartList.isEmpty){
+  Future<void> addToCartListForUser(TemporaryCartListModel cartList,
+      {bool clear = false, double payable = 0}) async {
+    if (_customerCartList.isEmpty) {
       _customerIds = [];
     }
     bool isExist = false;
-    for(int i = 0; i < _customerCartList.length; i++ ){
-      if(_customerCartList[i].userId == cartList.userId && cartList.userId != 0){
-       await onChangeOrder(_customerIds[i]!, payable);
+    for (int i = 0; i < _customerCartList.length; i++) {
+      if (_customerCartList[i].userId == cartList.userId &&
+          cartList.userId != 0) {
+        await onChangeOrder(_customerIds[i]!, payable);
 
-       isExist = true;
+        isExist = true;
       }
-
     }
-    if(!isExist){
-      if(!_customerIds.contains(_customerIds.length)){
+    if (!isExist) {
+      if (!_customerIds.contains(_customerIds.length)) {
         _customerIds.add(_customerIds.length);
       }
       _customerCartList.add(cartList);
       await onChangeOrder(_customerIds.last!, payable);
-
     }
 
-    if(clear){
+    if (clear) {
       update();
     }
 
@@ -239,62 +240,80 @@ class CartController extends GetxController implements GetxService{
   }
 
   Future<void> onChangeOrder(int id, double payable) async {
-    final TransactionController transactionController = Get.find<TransactionController>();
+    final TransactionController transactionController =
+        Get.find<TransactionController>();
 
     await setCustomerIndex(_customerIds.indexOf(id), true);
 
     setCustomerInfo(
       customerCartList[customerIndex].userId,
-      customerCartList[(customerIndex)].customerName, '',
-      customerCartList[(customerIndex)].customerBalance, true,
+      customerCartList[(customerIndex)].customerName,
+      '',
+      customerCartList[(customerIndex)].customerBalance,
+      true,
     );
 
-    transactionController.addCustomerBalanceIntoAccountList(Accounts(id: 0, account: 'customer balance'));
+    transactionController.addCustomerBalanceIntoAccountList(
+        Accounts(id: 0, account: 'customer balance'));
     transactionController.setAccountIndex(1, 'from', true);
     getReturnAmount(payable);
   }
 
-
   void setQuantity(bool isIncrement, int? index) {
     _amount = 0;
     if (isIncrement) {
-      if(_customerCartList[_customerIndex].cart![index!].product!.quantity! > _customerCartList[_customerIndex].cart![index].quantity!)
-     {
-       _customerCartList[_customerIndex].cart![index].quantity = _customerCartList[_customerIndex].cart![index].quantity! + 1;
+      if (_customerCartList[_customerIndex].cart![index!].product!.quantity! >
+          _customerCartList[_customerIndex].cart![index].quantity!) {
+        _customerCartList[_customerIndex].cart![index].quantity =
+            _customerCartList[_customerIndex].cart![index].quantity! + 1;
 
-       for(int i =0 ; i< _customerCartList[_customerIndex].cart!.length; i++){
-         _amount = _amount + (_customerCartList[_customerIndex].cart![i].price! *
-             _customerCartList[_customerIndex].cart![i].quantity!);
-       }
-     }else{
-        for(int i =0 ; i< _customerCartList[_customerIndex].cart!.length; i++){
-          _amount = _amount + (_customerCartList[_customerIndex].cart![i].price! *
-              _customerCartList[_customerIndex].cart![i].quantity!);
+        for (int i = 0;
+            i < _customerCartList[_customerIndex].cart!.length;
+            i++) {
+          _amount = _amount +
+              (_customerCartList[_customerIndex].cart![i].price! *
+                  _customerCartList[_customerIndex].cart![i].quantity!);
+        }
+      } else {
+        for (int i = 0;
+            i < _customerCartList[_customerIndex].cart!.length;
+            i++) {
+          _amount = _amount +
+              (_customerCartList[_customerIndex].cart![i].price! *
+                  _customerCartList[_customerIndex].cart![i].quantity!);
         }
         showCustomSnackBarHelper('stock_out'.tr);
       }
     } else {
-      if(_customerCartList[_customerIndex].cart![index!].quantity! > 1){
-        _customerCartList[_customerIndex].cart![index].quantity = _customerCartList[_customerIndex].cart![index].quantity! - 1;
-        for(int i =0 ; i< _customerCartList[_customerIndex].cart!.length; i++){
-          _amount = _amount + (_customerCartList[_customerIndex].cart![i].price! *
-              _customerCartList[_customerIndex].cart![i].quantity!);
+      if (_customerCartList[_customerIndex].cart![index!].quantity! > 1) {
+        _customerCartList[_customerIndex].cart![index].quantity =
+            _customerCartList[_customerIndex].cart![index].quantity! - 1;
+        for (int i = 0;
+            i < _customerCartList[_customerIndex].cart!.length;
+            i++) {
+          _amount = _amount +
+              (_customerCartList[_customerIndex].cart![i].price! *
+                  _customerCartList[_customerIndex].cart![i].quantity!);
         }
-      }else{
+      } else {
         showCustomSnackBarHelper('minimum_quantity_1'.tr);
-        for(int i =0 ; i< _customerCartList[_customerIndex].cart!.length; i++){
-          _amount = _amount + (_customerCartList[_customerIndex].cart![i].price! *
-              _customerCartList[_customerIndex].cart![i].quantity!);
+        for (int i = 0;
+            i < _customerCartList[_customerIndex].cart!.length;
+            i++) {
+          _amount = _amount +
+              (_customerCartList[_customerIndex].cart![i].price! *
+                  _customerCartList[_customerIndex].cart![i].quantity!);
         }
       }
-
     }
 
     update();
   }
 
   void removeFromCart(int index) {
-    _amount = _amount - (_customerCartList[_customerIndex].cart![index].price! * _customerCartList[_customerIndex].cart![index].quantity!);
+    _amount = _amount -
+        (_customerCartList[_customerIndex].cart![index].price! *
+            _customerCartList[_customerIndex].cart![index].quantity!);
     _customerCartList[_customerIndex].cart!.removeAt(index);
 
     update();
@@ -308,24 +327,20 @@ class CartController extends GetxController implements GetxService{
     _collectedCashController.clear();
     _customerCartList = [];
 
-
     update();
   }
 
-
   void removeAllCartList() {
-    _cartList =[];
+    _cartList = [];
     _customerWalletController.clear();
     _extraDiscountAmount = 0;
     _amount = 0;
     _collectedCashController.clear();
-    _customerCartList =[];
+    _customerCartList = [];
     _customerIds = [];
     _customerIndex = 0;
     update();
   }
-
-
 
   void clearCartList() {
     _cartList = [];
@@ -335,53 +350,58 @@ class CartController extends GetxController implements GetxService{
 
   bool isExistInCart(CartModel cartModel) {
     cartIndex = 0;
-    for(int index = 0; index<_customerCartList[_customerIndex].cart!.length; index++) {
-      if(_customerCartList[_customerIndex].cart![index].product!.id == cartModel.product!.id) {
+    for (int index = 0;
+        index < _customerCartList[_customerIndex].cart!.length;
+        index++) {
+      if (_customerCartList[_customerIndex].cart![index].product!.id ==
+          cartModel.product!.id) {
         setQuantity(true, index);
-        showCustomSnackBarHelper('${'added_cart_successfully'.tr} ${ _customerCartList[_customerIndex].cart![index].quantity} ${'items'.tr}', isToaster: true, isError: false);
+        showCustomSnackBarHelper(
+            '${'added_cart_successfully'.tr} ${_customerCartList[_customerIndex].cart![index].quantity} ${'items'.tr}',
+            isToaster: true,
+            isError: false);
       }
     }
     return false;
   }
 
-  Future<void> getCouponDiscount(String couponCode, int? userId, double orderAmount) async {
-    Response response = await cartRepo.getCouponDiscount(couponCode, userId, orderAmount);
-    if(response.statusCode == 200) {
+  Future<void> getCouponDiscount(
+      String couponCode, int? userId, double orderAmount) async {
+    Response response =
+        await cartRepo.getCouponDiscount(couponCode, userId, orderAmount);
+    if (response.statusCode == 200) {
       _couponController.clear();
       bool percent;
       _coupons = Coupons.fromJson(response.body['coupon']);
 
       percent = _coupons!.discountType == 'percent';
-      if(percent){
-        _couponCodeAmount = (double.parse(coupons!.discount!)/100) * orderAmount;
-      }else{
+      if (percent) {
+        _couponCodeAmount =
+            (double.parse(coupons!.discount!) / 100) * orderAmount;
+      } else {
         _couponCodeAmount = double.parse(coupons!.discount!);
       }
 
       _customerCartList[_customerIndex].couponAmount = _couponCodeAmount;
 
-
-
-     showCustomSnackBarHelper('${'you_got'.tr} $_couponCodeAmount ${'discount'.tr}',isError: false);
-    }else if(response.statusCode == 202){
+      showCustomSnackBarHelper(
+          '${'you_got'.tr} $_couponCodeAmount ${'discount'.tr}',
+          isError: false);
+    } else if (response.statusCode == 202) {
       Map map = response.body;
       String? message = map['message'];
       showCustomSnackBarHelper(message);
-    }
-    else {
+    } else {
       ApiChecker.checkApi(response);
     }
     update();
   }
 
-
-
-  void clearCardForCancel(){
+  void clearCardForCancel() {
     _couponCodeAmount = 0;
     _extraDiscountAmount = 0;
     _coupons = null;
     update();
-
   }
 
   Future<Response> placeOrder(PlaceOrderModel placeOrderBody) async {
@@ -389,7 +409,7 @@ class CartController extends GetxController implements GetxService{
     update();
 
     Response response = await cartRepo.placeOrder(placeOrderBody);
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       _isLoading = false;
       _returnToCustomerAmount = 0;
       _couponCodeAmount = 0;
@@ -406,48 +426,49 @@ class CartController extends GetxController implements GetxService{
       setReturnAmountToZero();
       _coupons = null;
 
-
-      if(_customerIds.isNotEmpty) {
+      if (_customerIds.isNotEmpty) {
         _amount = 0;
         setCustomerIndex(0, false);
-        Get.find<CartController>().searchCustomerController.text = 'walking customer';
-        setCustomerInfo(_customerCartList[_customerIndex].userId, _customerCartList[_customerIndex].customerName, '', _customerCartList[_customerIndex].customerBalance, true);
+        Get.find<CartController>().searchCustomerController.text =
+            'walking customer';
+        setCustomerInfo(
+            _customerCartList[_customerIndex].userId,
+            _customerCartList[_customerIndex].customerName,
+            '',
+            _customerCartList[_customerIndex].customerBalance,
+            true);
       }
-      Get.to(()=> InVoiceScreen(orderId: response.body['order_id']));
-
-    }else{
-     ApiChecker.checkApi(response);
+      Get.to(() => InVoiceScreen(orderId: response.body['order_id']));
+    } else {
+      ApiChecker.checkApi(response);
     }
     update();
     return response;
   }
 
-
-
-
-  Future<void> scanProductBarCode() async{
+  Future<void> scanProductBarCode() async {
     String? scannedProductBarCode;
-    try{
-      scannedProductBarCode = await FlutterBarcodeScanner.scanBarcode('#003E47', 'cancel', false, ScanMode.BARCODE);
-    }
-    catch(e){
+    try {
+      // scannedProductBarCode = await FlutterBarcodeScanner.scanBarcode(
+      //     '#003E47', 'cancel', false, ScanMode.BARCODE);
+    } catch (e) {
       debugPrint('$e');
     }
     getProductFromScan(scannedProductBarCode);
   }
 
-
-
   Future<void> getProductFromScan(String? productCode) async {
     _isLoading = true;
     Response response = await cartRepo.getProductByCode(productCode);
-    if(response.statusCode == 200) {
-      _scanProduct =[];
-      response.body.forEach((categoriesProduct) => _scanProduct.add(CategoriesProduct.fromJson(categoriesProduct)));
-      CartModel cartModel = CartModel(_scanProduct[0].sellingPrice, _scanProduct[0].discount, 1, _scanProduct[0].tax, _scanProduct[0]);
+    if (response.statusCode == 200) {
+      _scanProduct = [];
+      response.body.forEach((categoriesProduct) =>
+          _scanProduct.add(CategoriesProduct.fromJson(categoriesProduct)));
+      CartModel cartModel = CartModel(_scanProduct[0].sellingPrice,
+          _scanProduct[0].discount, 1, _scanProduct[0].tax, _scanProduct[0]);
       addToCart(cartModel);
       _isLoading = false;
-    }else {
+    } else {
       ApiChecker.checkApi(response);
     }
     _isLoading = false;
@@ -457,42 +478,46 @@ class CartController extends GetxController implements GetxService{
   Future<void> setCustomerIndex(int index, bool notify) async {
     _amount = 0;
     _customerIndex = index;
-    if(_customerCartList.isNotEmpty) {
-      for(int i =0; i< _customerCartList[_customerIndex].cart!.length; i++){
-        _amount = _amount + (_customerCartList[_customerIndex].cart![i].price! * _customerCartList[_customerIndex].cart![i].quantity!);
+    if (_customerCartList.isNotEmpty) {
+      for (int i = 0; i < _customerCartList[_customerIndex].cart!.length; i++) {
+        _amount = _amount +
+            (_customerCartList[_customerIndex].cart![i].price! *
+                _customerCartList[_customerIndex].cart![i].quantity!);
       }
     }
 
-    if(notify) {
+    if (notify) {
       update();
     }
   }
+
   Future<void> onSearchCustomer(String searchName) async {
     _searchedCustomerList = [];
     _isGetting = true;
     Response response = await cartRepo.getCustomerByName(searchName);
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       _searchedCustomerList = [];
-      _searchedCustomerList!.addAll(CustomerModel.fromJson(response.body).customerList ?? []);
+      _searchedCustomerList!
+          .addAll(CustomerModel.fromJson(response.body).customerList ?? []);
       _customerListLength = CustomerModel.fromJson(response.body).totalSize;
       _isGetting = false;
       _isFirst = false;
-    }else {
+    } else {
       ApiChecker.checkApi(response);
     }
     _isGetting = false;
     update();
   }
 
-  void setCustomerInfo(int? id, String? name,String? phone,double? customerBalance,  bool notify) {
-      _customerId = id;
-      _customerSelectedName = name;
-      _customerSelectedMobile  = phone;
-      _customerBalance = customerBalance;
+  void setCustomerInfo(int? id, String? name, String? phone,
+      double? customerBalance, bool notify) {
+    _customerId = id;
+    _customerSelectedName = name;
+    _customerSelectedMobile = phone;
+    _customerBalance = customerBalance;
 
-      if(notify) {
-        update();
-      }
+    if (notify) {
+      update();
     }
-
+  }
 }

@@ -21,40 +21,49 @@ class _IncomeListWidgetState extends State<IncomeListWidget> {
   Widget build(BuildContext context) {
     int offset = 1;
     widget.scrollController?.addListener(() {
-      if(widget.scrollController!.position.maxScrollExtent == widget.scrollController!.position.pixels
-          && Get.find<IncomeController>().incomeList != null &&
-          Get.find<IncomeController>().incomeList!.isNotEmpty
-          && !Get.find<IncomeController>().isLoading) {
+      if (widget.scrollController!.position.maxScrollExtent ==
+              widget.scrollController!.position.pixels &&
+          Get.find<IncomeController>().incomeList != null &&
+          Get.find<IncomeController>().incomeList!.isNotEmpty &&
+          !Get.find<IncomeController>().isLoading) {
         int? pageSize;
         pageSize = Get.find<IncomeController>().incomeListLength;
 
-        if(offset < pageSize!) {
+        if (offset < (pageSize ?? 0)) {
           offset++;
           Get.find<IncomeController>().showBottomLoader();
           Get.find<IncomeController>().getIncomeList(offset, reload: false);
         }
       }
-
     });
 
     return GetBuilder<IncomeController>(
       builder: (incomeController) {
-
         return Column(children: [
-          incomeController.incomeList == null ? const CustomLoaderWidget() :  !incomeController.isFirst ? incomeController.incomeList!.isNotEmpty ?
-          ListView.builder(
-            shrinkWrap: true,
-              itemCount:  incomeController.incomeList!.length,
-              physics:  const BouncingScrollPhysics(),
-              itemBuilder: (ctx,index){
-                return IncomeInfoCardWidget(income: incomeController.incomeList![index], index: index);
-
-              }) : const NoDataWidget(): const AccountShimmerWidget(),
-          incomeController.isLoading ? const Center(child: Padding(
-            padding: EdgeInsets.all(Dimensions.iconSizeExtraSmall),
-            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(ColorResources.primaryColor)),
-          )) : const SizedBox.shrink(),
-
+          incomeController.incomeList == null
+              ? const CustomLoaderWidget()
+              : !incomeController.isFirst
+                  ? incomeController.incomeList!.isNotEmpty
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: incomeController.incomeList!.length,
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (ctx, index) {
+                            return IncomeInfoCardWidget(
+                                income: incomeController.incomeList![index],
+                                index: index);
+                          })
+                      : const NoDataWidget()
+                  : const AccountShimmerWidget(),
+          incomeController.isLoading
+              ? const Center(
+                  child: Padding(
+                  padding: EdgeInsets.all(Dimensions.iconSizeExtraSmall),
+                  child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          ColorResources.primaryColor)),
+                ))
+              : const SizedBox.shrink(),
         ]);
       },
     );
